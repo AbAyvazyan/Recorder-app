@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recorder App</title>
+    <script src="https://kit.fontawesome.com/5a7b3bb275.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+<h1>Audio and Video Recorder</h1>
+<div class="container">
+    <div class="live-recording">
+        <video id="videoElement" autoplay muted></video>
+        <canvas id="canvasElement"></canvas>
+        <div class="controls">
+            <button id="startRecording"><i class="fa-solid fa-play"></i></button>
+            <button id="stopRecording" disabled><i class="fa-solid fa-stop"></i></button>
+            <label for="micVolume"><i class="fa-solid fa-volume-high"></i></label>
+            <input type="range" id="micVolume" min="0" max="2" step="0.1" value="1">
+            <!--            <input type="file" id="imageInput" accept="image/*">-->
+        </div>
+    </div>
+    <div class="panel">
+        <div class="playback-videos" id="playbackVideos">
+            <h2>Playback</h2>
+        </div>
+        <label id="take_images">
+            Click to choose image
+            <input type="file" id="imageInput" accept="image/*" hidden>
+        </label>
+    </div>
+
+</div>
+
+
+<script src="js/main.js"></script>
+</body>
+</html>
