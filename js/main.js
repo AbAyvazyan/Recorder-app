@@ -3,31 +3,33 @@ let audioContext;
 let mediaRecorder;
 let recordedChunks = [];
 let videoStream, audioStream;
-let canvas, canvasContext;
 let imageOverlay = null;
-let videoElement, playbackElement;
 let animationFrameId;
 let playbackVideos
 
-document.getElementById('startRecording').onclick = async () => {
+const startRecording = document.getElementById('startRecording')
+const stopRecording = document.getElementById('stopRecording')
+let canvas = document.getElementById('canvasElement');
+let canvasContext = canvas.getContext('2d');
+let videoElement = document.getElementById('videoElement');
+
+
+startRecording.onclick = async () => {
     // Get user media
     const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     videoStream = mediaStream.getVideoTracks()[0];
     audioStream = mediaStream.getAudioTracks()[0];
 
     // Set up video element
-    videoElement = document.getElementById('videoElement');
     videoElement.srcObject = mediaStream;
 
     // Set up canvas for video manipulation
-    canvas = document.getElementById('canvasElement');
-    canvasContext = canvas.getContext('2d');
+
 
     videoElement.addEventListener('loadedmetadata', () => {
         canvas.width = videoElement.videoWidth;
         canvas.height = videoElement.videoHeight;
         canvas.style.display = 'block'
-
     });
 
     // Set up audio context for audio manipulation
@@ -54,23 +56,22 @@ document.getElementById('startRecording').onclick = async () => {
     mediaRecorder.onstop = drawPlaybackFrames
 
     mediaRecorder.start();
-    document.getElementById('startRecording').disabled = true;
-    document.getElementById('stopRecording').disabled = false;
+    startRecording.disabled = true;
+    stopRecording.disabled = false;
 
 
-    // Draw video frames to canvas
     requestAnimationFrame(drawVideoFrame);
 };
 
-document.getElementById('stopRecording').onclick = () => {
+stopRecording.onclick = () => {
     mediaRecorder.stop();
     videoStream.stop();
     audioStream.stop();
     audioContext.close();
     stopDrawingFrames()
 
-    document.getElementById('startRecording').disabled = false;
-    document.getElementById('stopRecording').disabled = true;
+    startRecording.disabled = false;
+    stopRecording.disabled = true;
 
 };
 
@@ -103,6 +104,7 @@ function stopDrawingFrames() {
 
 function drawPlaybackFrames() {
     playbackVideos = document.getElementById('playbackVideos')
+    playbackVideos.innerHTML=''
     const playbackVideo = document.createElement('video')
     playbackVideo.setAttribute('controls',true)
 
