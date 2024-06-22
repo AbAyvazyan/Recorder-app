@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "http-server ./ -p 3000",
     "build-css": "node-sass styles/main.scss styles/main.css",
     "watch-css": "node-sass -w styles/main.scss styles/main.css"
   },
@@ -11,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "http-server": "^14.1.1",
     "node-sass": "^9.0.0"
   }
 }
