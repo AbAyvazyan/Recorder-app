@@ -1,3 +1,4 @@
+// Import necessary elements from the UI module
 import {
   canvas,
   canvasContext,
@@ -9,6 +10,7 @@ import {
   videoElement,
 } from './ui.mjs';
 
+// Wait for the DOM to be fully loaded before running the script
 document.addEventListener('DOMContentLoaded', () => {
   let audioContext;
   let mediaRecorder;
@@ -50,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     startRecordingButton.disabled = true;
     stopRecordingButton.disabled = false;
 
+    // Start drawing video frames on the canvas
     requestAnimationFrame(drawVideoFrame);
   }
 
@@ -99,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mediaStreamSource.connect(gainNode);
     gainNode.connect(destination);
 
+    //microphone volume control
     micVolumeSlider.oninput = (e) => {
       if (gainNode) {
         gainNode.gain.value = e.target.value;
