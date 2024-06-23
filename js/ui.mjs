@@ -8,12 +8,12 @@ const imageInput = document.getElementById('imageInput');
 const playbackVideos = document.getElementById('playbackVideos');
 
 export {
-    stopRecordingButton,
-    startRecordingButton,
-    canvas,
-    canvasContext,
-    micVolumeSlider,
-    imageInput,
-    videoElement,
-    playbackVideos
-}
+  stopRecordingButton,
+  startRecordingButton,
+  canvas,
+  canvasContext,
+  micVolumeSlider,
+  imageInput,
+  videoElement,
+  playbackVideos,
+};

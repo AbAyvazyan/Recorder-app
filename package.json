@@ -6,13 +6,19 @@
   "scripts": {
     "start": "http-server ./ -p 3000",
     "build-css": "node-sass styles/main.scss styles/main.css",
-    "watch-css": "node-sass -w styles/main.scss styles/main.css"
+    "watch-css": "node-sass -w styles/main.scss styles/main.css",
+    "lint": "eslint .",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^9.5.0",
+    "eslint": "^9.5.0",
+    "globals": "^15.6.0",
     "http-server": "^14.1.1",
-    "node-sass": "^9.0.0"
+    "node-sass": "^9.0.0",
+    "prettier": "3.3.2"
   }
 }

@@ -1,45 +1,46 @@
 import {
-    canvas,
-    canvasContext,
-    imageInput,
-    micVolumeSlider,
-    startRecordingButton,
-    stopRecordingButton,
-    videoElement,
-    playbackVideos
-} from './ui.mjs'
+  canvas,
+  canvasContext,
+  imageInput,
+  micVolumeSlider,
+  playbackVideos,
+  startRecordingButton,
+  stopRecordingButton,
+  videoElement,
+} from './ui.mjs';
 
-let audioContext;
-let mediaRecorder;
-let recordedChunks = [];
-let videoStream, audioStream;
-let imageOverlay = null;
-let animationFrameId;
+document.addEventListener('DOMContentLoaded', () => {
+  let audioContext;
+  let mediaRecorder;
+  let recordedChunks = [];
+  let videoStream, audioStream;
+  let imageOverlay = null;
+  let animationFrameId;
 
+  const FRAME_RATE = 30;
+  const IMAGE_OVERLAY_DIMENSIONS = { width: 100, height: 100 };
+  const IMAGE_OVERLAY_POSITION = { x: 5, y: 5 };
 
-const FRAME_RATE = 30;
-const IMAGE_OVERLAY_DIMENSIONS = {width: 100, height: 100};
-const IMAGE_OVERLAY_POSITION = {x: 5, y: 5};
-startRecordingButton.onclick = async () => {
+  startRecordingButton.onclick = async () => {
     try {
-        await startRecording();
+      await startRecording();
     } catch (error) {
-        alert('Error starting recording:'+error);
+      alert('Error starting recording:' + error);
     }
-};
+  };
 
-stopRecordingButton.onclick = stopRecording;
+  stopRecordingButton.onclick = stopRecording;
 
-imageInput.onchange = handleImageInput;
+  imageInput.onchange = handleImageInput;
 
-async function startRecording() {
+  async function startRecording() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Media devices API or getUserMedia not supported');
+      throw new Error('Media devices API or getUserMedia not supported');
     }
 
     const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
+      video: true,
+      audio: true,
     });
 
     setupMediaStreams(mediaStream);
@@ -50,11 +51,11 @@ async function startRecording() {
     stopRecordingButton.disabled = false;
 
     requestAnimationFrame(drawVideoFrame);
-}
+  }
 
-function stopRecording() {
+  function stopRecording() {
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-        mediaRecorder.stop();
+      mediaRecorder.stop();
     }
     if (videoStream) videoStream.stop();
     if (audioStream) audioStream.stop();
@@ -63,32 +64,32 @@ function stopRecording() {
 
     startRecordingButton.disabled = false;
     stopRecordingButton.disabled = true;
-}
+  }
 
-function handleImageInput(event) {
+  function handleImageInput(event) {
     const file = event.target.files[0];
     if (file) {
-        const img = new Image();
-        img.onload = () => {
-            imageOverlay = img;
-        };
-        img.src = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        imageOverlay = img;
+      };
+      img.src = URL.createObjectURL(file);
     }
-}
+  }
 
-function setupMediaStreams(mediaStream) {
+  function setupMediaStreams(mediaStream) {
     videoStream = mediaStream.getVideoTracks()[0];
     audioStream = mediaStream.getAudioTracks()[0];
     videoElement.srcObject = mediaStream;
 
     videoElement.addEventListener('loadedmetadata', () => {
-        canvas.width = videoElement.videoWidth;
-        canvas.height = videoElement.videoHeight;
-        canvas.style.display = 'block';
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
+      canvas.style.display = 'block';
     });
-}
+  }
 
-function setupAudioContext(mediaStream) {
+  function setupAudioContext(mediaStream) {
     audioContext = new AudioContext();
     const mediaStreamSource = audioContext.createMediaStreamSource(mediaStream);
     const gainNode = audioContext.createGain();
@@ -99,58 +100,65 @@ function setupAudioContext(mediaStream) {
     gainNode.connect(destination);
 
     micVolumeSlider.oninput = (e) => {
-        if (gainNode) {
-            gainNode.gain.value = e.target.value;
-        }
+      if (gainNode) {
+        gainNode.gain.value = e.target.value;
+      }
     };
 
     return destination;
-}
+  }
 
-function setupMediaRecorder() {
+  function setupMediaRecorder() {
     const videoStream = canvas.captureStream(FRAME_RATE);
     const audioDestination = setupAudioContext(videoElement.srcObject);
     const combinedStream = new MediaStream([
-        ...videoStream.getVideoTracks(),
-        ...audioDestination.stream.getAudioTracks(),
+      ...videoStream.getVideoTracks(),
+      ...audioDestination.stream.getAudioTracks(),
     ]);
 
     mediaRecorder = new MediaRecorder(combinedStream);
     mediaRecorder.ondataavailable = handleDataAvailable;
     mediaRecorder.onstop = drawPlaybackFrames;
     mediaRecorder.start();
-}
+  }
 
-function handleDataAvailable(event) {
+  function handleDataAvailable(event) {
     if (event.data.size > 0) {
-        recordedChunks.push(event.data);
+      recordedChunks.push(event.data);
     }
-}
+  }
 
-function drawVideoFrame() {
+  function drawVideoFrame() {
     if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
-        canvasContext.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-        if (imageOverlay) {
-            canvasContext.drawImage(imageOverlay, IMAGE_OVERLAY_POSITION.x, IMAGE_OVERLAY_POSITION.y, IMAGE_OVERLAY_DIMENSIONS.width, IMAGE_OVERLAY_DIMENSIONS.height);
-        }
+      canvasContext.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+      if (imageOverlay) {
+        canvasContext.drawImage(
+          imageOverlay,
+          IMAGE_OVERLAY_POSITION.x,
+          IMAGE_OVERLAY_POSITION.y,
+          IMAGE_OVERLAY_DIMENSIONS.width,
+          IMAGE_OVERLAY_DIMENSIONS.height
+        );
+      }
     }
     animationFrameId = requestAnimationFrame(drawVideoFrame);
-}
+  }
 
-function stopDrawingFrames() {
+  function stopDrawingFrames() {
     cancelAnimationFrame(animationFrameId);
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
     imageOverlay = null;
-}
+  }
 
-function drawPlaybackFrames() {
+  function drawPlaybackFrames() {
     playbackVideos.innerHTML = '';
-    recordedChunks.forEach((item) => {
-        const blob = new Blob([item], {type: 'video/webm'});
-        const url = URL.createObjectURL(blob);
-        const playbackVideo = document.createElement('video');
-        playbackVideo.setAttribute('controls', true);
-        playbackVideo.src = url;
-        playbackVideos.appendChild(playbackVideo);
+    recordedChunks.reverse().forEach((item) => {
+      const blob = new Blob([item], { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      const playbackVideo = document.createElement('video');
+      playbackVideo.setAttribute('controls', true);
+      playbackVideo.src = url;
+      playbackVideos.appendChild(playbackVideo);
     });
-}
+  }
+});
